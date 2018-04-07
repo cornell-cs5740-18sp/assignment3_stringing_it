@@ -19,7 +19,7 @@ def evaluate(data, model):
         - compare the probabilities computed by different styles of decoding
 
     You might want to refactor this into several different evaluation functions.
-    
+
     """
     pass
 
@@ -34,7 +34,7 @@ class POSTagger():
         You should also experiment:
             - smoothing.
             - N-gram models with varying N.
-        
+
         """
         pass
 
@@ -76,6 +76,6 @@ if __name__ == "__main__":
     test_predictions = []
     for sentence in test_data:
         test_predictions.extend(pos_tagger.inference(sentence)
-    
+
     # Write them to a file to update the leaderboard
     # TODO
