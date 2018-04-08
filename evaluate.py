@@ -32,13 +32,13 @@ data = dev.join(pred)
 
 
 if args.show_confusion:
-    
+
     data["count"] = 1
     counts = data.groupby(["actual", "predicted"]).count().reset_index()
     confusion = counts[counts.actual != counts.predicted].reset_index(drop = True)
-        
+
     print("Confusion Matrix:")
-    
+
     if confusion.empty: print("None!")
     else: print(confusion)
 
