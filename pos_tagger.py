@@ -1,4 +1,6 @@
 """ Contains the part of speech tagger class. """
+import pandas as import pd
+import numpy as np
 
 def make_sentences(tokens,tags):
     """
@@ -20,12 +22,12 @@ def make_sentences(tokens,tags):
             temp_tokens.append(word)
             temp_tags.append(tag)
         if word=='.':
-            sentences.append(' '.join(temp_tokens) + ' .')
-            tags_list.append(' '.join(temp_tags) + ' .')
+            sentences.append(' '.join(temp_tokens))
+            tags_list.append(' '.join(temp_tags))
             temp_tokens = []
             temp_tags = []
 
-    return zip(sentences,tags)
+    return zip(sentences,tags_list)
 
 def load_data(sentence_file, tag_file=None):
     """Loads data from two files: one containing sentences and one containing tags.
@@ -68,7 +70,7 @@ class POSTagger():
         self.bitag = {}
         self.tritag = {}
         self.wordtag = {}
-        self.tag_set = set()
+        self.tag_set = []
 
     def nGramTagger(self,n):
         """
@@ -98,10 +100,13 @@ class POSTagger():
         OUTPUT : Dict ((word,tag) count dictionary)
         """
 
-        dic = defaultdict(int)
+        dic = {}
         for line1,line2 in zip(self.sentences,self.tags_sentences):
             for word,tag in zip(line1.split(' '),line2.split(' ')):
-                dic[(word,tag)]+=1
+                if (word,tag) not in dic:
+                    dic[(word,tag)]+=1
+                else:
+                    dic[(word,tag)]=1
         return dic
 
     def get_q(self,tag_penult,tag_last,tag_current):
@@ -139,7 +144,7 @@ class POSTagger():
         self.tritag = self.nGramTagger(3)
 
         self.wordtag = self.wordTagger()
-        self.tag_set = set(self.unitag.keys())
+        self.tag_set = list(set(self.unitag.keys()))
 
 
     def sequence_probability(self, sequence, tags):
@@ -153,7 +158,7 @@ class POSTagger():
             q = self.get_q(tag,tag_prev,tag_penult)
             e = self.get_e(word,tag)
             tag_penult = tag_prev
-            tag_prev = tagger
+            tag_prev = tag
             prod *= q*e
 
         return prod
@@ -168,6 +173,20 @@ class POSTagger():
             - decoding with beam search
             - viterbi
         """
+        #Method 1: Greedy Decoding
+        tag_sequence = []
+        tag_penult = '*'
+        tag_prev = '*'
+        for word in sequence:
+            scores = []
+            for tag in self.tag_set:
+                scores.append(self.get_q(tag_penult,tag_prev,tag)*self.get_e(word,tag))
+            final_tag = self.tag_set[np.argmax(scores)]
+            tag_sequence.append(final_tag)
+            tag_penult = tag_prev
+            tag_prev = final_tag
+
+        return tag_sequence
 
 
 
