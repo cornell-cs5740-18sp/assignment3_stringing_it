@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import confusion_matrix, accuracy_score
 from argparse import ArgumentParser
+import matplotlib.pyplot as plt
+from pandas_ml import ConfusionMatrix
+
 
 
 def warn(*args, **kwargs): pass
@@ -42,3 +45,7 @@ if args.show_confusion:
 
     if confusion.empty: print("None!")
     else: print(confusion)
+
+    cm = ConfusionMatrix(confusion['predicted'],confusion['actual'])
+    cm.plot(normalized=True)
+    plt.show()
