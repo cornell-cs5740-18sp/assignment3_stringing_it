@@ -82,7 +82,7 @@ def save_results(predicted_tags, mode):
 
     print "Predictions saved."
 
-def evaluate(data, model, mode='beam'):
+def evaluate(data, model, mode='greedy'):
     """Evaluates the POS model on some sentences and gold tags.
 
     This model can compute a few different accuracies:
@@ -141,10 +141,10 @@ class POSTagger():
         self.word_count = {}
 
     def word_count_dic(self):
-        word_counter = {}
+        word_counter = defaultdict(int)
         for sentence in zip(*self.train_data)[0]:
             for word in sentence.split(' '):
-                self.word_count[word] = self.word_count.get(word,0) + 1
+                word_counter[word] += 1
         return word_counter
 
     def nGramTagger(self,n):
@@ -306,7 +306,6 @@ class POSTagger():
             - viterbi
         """
         #Method 1: Greedy Decoding
-
         if mode.lower()=='greedy':
             tag_sequence = []
             tag_penult = '*'
@@ -320,7 +319,7 @@ class POSTagger():
                 tag_penult = tag_prev
                 tag_prev = final_tag
 
-            print tag_sequence
+
             return tag_sequence
 
         #Method 2: Beam Search
@@ -391,19 +390,11 @@ if __name__ == "__main__":
 
     pos_tagger.train(train_data)
 
-    # Experiment with your decoder using greedy decoding, beam search, viterbi...
-
-    # Here you can also implement experiments that compare different styles of decoding,
-    # smoothing, n-grams, etc.
-    print dev_data[0]
+    print "Predicting dev results"
     predicted_dev_tags = evaluate(dev_data, pos_tagger)
-
+    #save dev results
     save_results(predicted_dev_tags,'dev')
 
-
-    # Predict tags for the test set
-    # test_predictions = []
-    # for sentence in test_data:
-    #     test_predictions.extend(pos_tagger.inference(sentence,mode='greedy'))
-
+    print "Predicting test results"
+    test_predictions = evaluate(test_data, pos_tagger)
     save_results(test_predictions,'test')
